@@ -5,7 +5,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 
 function Model() {
   // Ajusta la ruta al archivo .glb según tu estructura de /public o carpeta de assets
-  const { scene } = useGLTF('/models/arm.glb')
+  const { scene } = useGLTF('/models/iphone.glb')
   
   // Aseguramos que la escena se clona y está correctamente configurada
   useEffect(() => {

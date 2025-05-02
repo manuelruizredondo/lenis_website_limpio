@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import s from "./home.module.scss";
 
+
 const WebGLComponent = dynamic(() => import("../../components/webgl"), {
   ssr: false,
 });
@@ -22,6 +23,7 @@ const VideoScroll = dynamic(
   () => import("../../components/VideoScroll").then((mod) => mod.VideoScroll),
   { ssr: false }
 );
+
 
 export default function Home() {
   useEffect(() => {
@@ -45,14 +47,14 @@ export default function Home() {
 
   return (
     <main>
-      <div className={s.canvas}>
+      <div className={s.canvas}> d
         <WebGLComponent />
       </div>
       <section
         id="section1"
         style={{ backgroundColor: "#f8b400", minHeight: "100vh" }}
       >
-        <h1>¡Bienvenido a Next.js con pnpm!</h1>
+        <h1>¡Bienvenido a Next.js con pnpmbbb d!</h1>
         <p>Esta es una sección adicional en la página de inicio.</p>
         <p>Next.js es un framework poderoso para aplicaciones React.</p>
       </section>
@@ -75,9 +77,7 @@ export default function Home() {
         className={s.section}
         style={{ backgroundColor: "#2196f3", minHeight: "100vh" }}
       >
-        <MarqueeImg>
-          <div class=" "></div>
-        </MarqueeImg>
+
         <MarqueeImg>
           <div className={s.isFlex} style={{ gap: "10px" }}>
             <div className={s.aspectRatio} data-param="200">

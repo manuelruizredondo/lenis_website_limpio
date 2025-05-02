@@ -1,3 +1,5 @@
+// src/components/ScrollPage.jsx
+
 import React, { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
@@ -10,32 +12,25 @@ const steps = [
   { position: [-0.1, -1.75, 0], scale: 0.90, rotation: [0, 0, 0] },
   { position: [0.15, -0.4, 0],   scale: 0.60,  rotation: [MathUtils.degToRad(-45), MathUtils.degToRad(-135), MathUtils.degToRad(-45)] },
   { position: [0.15, -0.4, 0],   scale: 0.90,  rotation: [MathUtils.degToRad(45),  MathUtils.degToRad(-315), MathUtils.degToRad(-45)] },
-  { position: [-0.2, -0.35, 0],  scale: 0.90,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
-  { position: [-1.2, -0.6, 0],   scale: 0.05,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
+  { position: [-0.2, -0.35, 0],  scale: 0.50,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
+  { position: [-1.2, -0.6, 0],   scale: 0.80,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
+
 ]
 
 // 2️⃣ ScrollModel ya no calcula sección, recibe el índice directamente
 function ScrollModel({ stepIndex }) {
   const group = useRef()
-  const previousStepIndex = useRef(stepIndex)
 
   useFrame((_, delta) => {
     if (!group.current) return
     const { position, rotation, scale } = steps[stepIndex]
 
     const speed = 5 * delta
-    const newPosition = new THREE.Vector3(...position)
-    group.current.position.lerp(newPosition, speed)
+    group.current.position.lerp(new THREE.Vector3(...position), speed)
     group.current.scale.lerp(new THREE.Vector3(scale, scale, scale), speed)
     group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, rotation[0], speed)
     group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, rotation[1], speed)
     group.current.rotation.z = THREE.MathUtils.lerp(group.current.rotation.z, rotation[2], speed)
-
-    // Detectar cambio de sección
-    if (previousStepIndex.current !== stepIndex) {
-      console.log('Cambio de sección detectado:', stepIndex)
-      previousStepIndex.current = stepIndex
-    }
   })
 
   const { scene } = useGLTF('/models/iphone.glb')
@@ -70,10 +65,11 @@ export default function ScrollPage() {
   // calculamos el índice de sección activa según scrollY
   let idx = sectionTops.findIndex((top, i) => {
     const nextTop = sectionTops[i + 1] ?? Infinity
-    return scrollY >= top && scrollY < (nextTop - (window.innerHeight / 2))
+    return scrollY >= top && scrollY < nextTop
   })
-  if (idx === -1) idx = 1                  // si no encuentra, usa 1 para evitar la animación en la primera sección
+  if (idx === -1) idx = 0                  // si no encuentra, usa 0
   const stepIndex = Math.min(idx, steps.length - 1)
+
 
   return (
     <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
