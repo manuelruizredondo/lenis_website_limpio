@@ -1,0 +1,29 @@
+
+.canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+height: 100vh;
+  border: 1px solid red;
+  pointer-events: none;
+
+
+}
+.aspectRatio {
+    aspect-ratio: 16/9;
+    background-color: red;
+    width: 500px;
+} 
+
+.isFlex {
+  display: inline-flex;
+  flex-wrap: nowrap; // Evita que los elementos se envuelvan
+  overflow-x: auto; // Permite el desplazamiento horizontal si los elementos salen de la pantalla
+}
+.gap10{
+  gap: 10px;
+}
+.section{
+overflow: hidden;
+}

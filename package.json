@@ -1,0 +1,25 @@
+{
+    "name": "nextjs-minimal",
+    "version": "0.1.0",
+    "packageManager": "pnpm@8.6.4",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start"
+    },
+    "dependencies": {
+      "next": "14.1.0",
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "@react-three/drei": "^9.88.0",
+      "@react-three/fiber": "^8.15.11",
+      "lenis": "^1.1.13",
+      "three": "^0.176.0",
+      "hamo": "1.0.0-dev.6",
+      "leva": "0.9.34",
+      "sass": "^1.59.3",
+      "clsx": "^1.2.1",
+      "gsap": "^3.11.4",
+      "react-use": "^17.4.0"
+    }
+  }
