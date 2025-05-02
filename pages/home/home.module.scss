@@ -1,3 +1,32 @@
+@font-face {
+  font-family: 'ppmori';
+  src: url('/fonts/PPMori-ExtraBold.otf') format('truetype');
+} 
+@font-face {
+  font-family: 'ppmoribold';
+  src: url('/fonts/PPMori-SemiBold.otf') format('truetype');
+} 
+
+
+
+
+.text4 {
+
+  font-family: 'ppmori', sans-serif;
+  font-size: 7vw;
+  line-height: 1;
+}
+
+.text2 {
+
+  font-family: 'ppmori', sans-serif;
+  font-size: 2vw;
+  line-height: 1;
+}
+
+.text-transform {
+  text-transform: uppercase;
+}
 
 .canvas {
   position: fixed;

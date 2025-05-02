@@ -47,7 +47,7 @@ export default function Home() {
 
   return (
     <main>
-      <div className={s.canvas}> d
+      <div className={s.canvas}>
         <WebGLComponent />
       </div>
       <section
@@ -60,6 +60,7 @@ export default function Home() {
       </section>
       <section
         id="section2"
+        className={s.text4}
         style={{ backgroundColor: "#4caf50", minHeight: "100vh" }}
       >
         <TypewriterGSAP text="¡Bienvenido a nuestra app de residencias de ancianos, donde el cuidado y el bienestar son nuestra prioridad!" />
@@ -67,6 +68,7 @@ export default function Home() {
 
       <section
         id="section2"
+        className={s.text4}
         style={{ backgroundColor: "#cccccc", minHeight: "100vh" }}
       >
         <AppearText text="¡Bienvenido a nuestra app de residencias de ancianos, donde el cuidado y el bienestar son nuestra prioridad!¡Bienvenido a nuestra app de residencias de ancianos, donde el cuidado y el bienestar son nuestra prioridad!" />

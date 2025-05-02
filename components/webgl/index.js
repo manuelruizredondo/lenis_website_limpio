@@ -1,92 +1,132 @@
-import React, { useRef, useState, useEffect, Suspense } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
-import Lenis from 'lenis'
-import * as THREE from 'three'
+import React, { useState, useEffect } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { useGLTF, useTexture } from '@react-three/drei'
 import { MathUtils } from 'three'
+import { animated, useSpring } from '@react-spring/three'
 
-// 1️⃣ Tu array de pasos
-const steps = [
-  { position: [-0.1, -1.75, 0], scale: 0.90, rotation: [0, 0, 0] },
-  { position: [0.15, -0.4, 0],   scale: 0.60,  rotation: [MathUtils.degToRad(-45), MathUtils.degToRad(-135), MathUtils.degToRad(-45)] },
-  { position: [0.15, -0.4, 0],   scale: 0.90,  rotation: [MathUtils.degToRad(45),  MathUtils.degToRad(-315), MathUtils.degToRad(-45)] },
-  { position: [-0.2, -0.35, 0],  scale: 0.90,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
-  { position: [-1.2, -0.6, 0],   scale: 0.05,  rotation: [MathUtils.degToRad(-90), MathUtils.degToRad(-405), MathUtils.degToRad(-45)] },
-]
+function SimpleIphoneModel({ steps, currentStep }) {
+  const { scene } = useGLTF('/models/iphone/scene.gltf')
+  const texture = useTexture('/images/foto.png')
 
-// 2️⃣ ScrollModel ya no calcula sección, recibe el índice directamente
-function ScrollModel({ stepIndex }) {
-  const group = useRef()
-  const previousStepIndex = useRef(stepIndex)
-
-  useFrame((_, delta) => {
-    if (!group.current) return
-    const { position, rotation, scale } = steps[stepIndex]
-
-    const speed = 5 * delta
-    const newPosition = new THREE.Vector3(...position)
-    group.current.position.lerp(newPosition, speed)
-    group.current.scale.lerp(new THREE.Vector3(scale, scale, scale), speed)
-    group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, rotation[0], speed)
-    group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, rotation[1], speed)
-    group.current.rotation.z = THREE.MathUtils.lerp(group.current.rotation.z, rotation[2], speed)
-
-    // Detectar cambio de sección
-    if (previousStepIndex.current !== stepIndex) {
-      console.log('Cambio de sección detectado:', stepIndex)
-      previousStepIndex.current = stepIndex
-    }
+  // Configuramos el spring para posición, escala y rotación
+  const { position, scale, rotation } = useSpring({
+    position: steps[currentStep].position,
+    scale: Array(3).fill(steps[currentStep].scale),
+    rotation: steps[currentStep].rotation,
+    config: { mass: 1, tension: 170, friction: 26 },
   })
 
-  const { scene } = useGLTF('/models/iphone.glb')
-  return <primitive ref={group} object={scene} />
-}
-
-// 3️⃣ Componente principal que detecta cada <section>
-export default function ScrollPage() {
-  const [mounted, setMounted] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
-  const [sectionTops, setSectionTops] = useState([])
-
-  // al montar, recogemos la posición de cada <section> en la página
   useEffect(() => {
-    setMounted(true)
-    const els = Array.from(document.querySelectorAll('section'))
-    setSectionTops(els.map(el => el.offsetTop))
-  }, [])
+    // Con GLTFLoader las UVs vienen volteadas: ajustamos
+    texture.flipY = false
 
-  // Lenis para el scroll suave
-  useEffect(() => {
-    if (!mounted) return
-    const lenis = new Lenis({ smooth: true })
-    lenis.on('scroll', ({ scroll }) => setScrollY(scroll))
-    function raf(t) { lenis.raf(t); requestAnimationFrame(raf) }
-    requestAnimationFrame(raf)
-    return () => lenis.destroy()
-  }, [mounted])
-
-  if (!mounted || sectionTops.length === 0) return null
-
-  // calculamos el índice de sección activa según scrollY
-  let idx = sectionTops.findIndex((top, i) => {
-    const nextTop = sectionTops[i + 1] ?? Infinity
-    return scrollY >= top && scrollY < (nextTop - (window.innerHeight / 2))
-  })
-  if (idx === -1) idx = 1                  // si no encuentra, usa 1 para evitar la animación en la primera sección
-  const stepIndex = Math.min(idx, steps.length - 1)
+    // Cambiamos la textura del material_1 a la foto
+    scene.traverse((child) => {
+      if (child.isMesh && child.material.name === 'material_1') {
+        child.material.map = texture
+        child.material.needsUpdate = true
+      }
+    })
+  }, [scene, texture])
 
   return (
-    <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
-      <Suspense fallback={null}>
-        {/* le pasamos el índice calculado */}
-        <ScrollModel stepIndex={stepIndex} />
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
-          <planeGeometry args={[100, 100]} />
-          <shadowMaterial opacity={0.4} />
-        </mesh>
-      </Suspense>
+    <animated.primitive
+      object={scene}
+      position={position}
+      scale={scale}
+      rotation={rotation}
+    />
+  )
+}
+
+export default function SimpleIphoneDisplay() {
+  const steps = [
+    { position: [-0.1, -1.75, 0],    scale: 0.05,
+      rotation: [
+        MathUtils.degToRad(0),
+        MathUtils.degToRad(45),
+        MathUtils.degToRad(0),
+      ],
+
+     },
+    {
+      position: [5, -1.75, 0],
+      scale: 0.05,
+      rotation: [
+        MathUtils.degToRad(-0),
+        MathUtils.degToRad(150),
+        MathUtils.degToRad(-0),
+      ],
+    },
+    {
+      position: [5, -1.75, 0],
+      scale: 1.6,
+      rotation: [
+        MathUtils.degToRad(0),
+        MathUtils.degToRad(-180),
+        MathUtils.degToRad(0),
+      ],
+    },
+    {
+      position: [-0.2, -0.35, 0],
+      scale: 0.5,
+      rotation: [
+        MathUtils.degToRad(-90),
+        MathUtils.degToRad(-100),
+        MathUtils.degToRad(-45),
+      ],
+    },
+    {
+      position: [-1.2, -0.6, 0],
+      scale: 0.05,
+      rotation: [
+        MathUtils.degToRad(-90),
+        MathUtils.degToRad(-405),
+        MathUtils.degToRad(-45),
+      ],
+    },
+    {
+      position: [-1.6, -0.6, 0],
+      scale: 0.05,
+      rotation: [
+        MathUtils.degToRad(-90),
+        MathUtils.degToRad(-405),
+        MathUtils.degToRad(-45),
+      ],
+    },
+  ]
+
+  const [currentStep, setCurrentStep] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('section')
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect()
+        const sectionHeight = rect.bottom - rect.top
+
+        if (
+          rect.top < window.innerHeight - sectionHeight / 2 &&
+          rect.bottom >= sectionHeight / 2
+        ) {
+          setCurrentStep(index)
+        }
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <Canvas
+      camera={{ position: [0, 0, 10], fov:50, near: 0.1, far: 100 }}
+    >
+      <ambientLight intensity={10} />
+      <directionalLight position={[5, 5, 5]} intensity={2} />
+
+ 
+      <SimpleIphoneModel steps={steps} currentStep={currentStep} />
     </Canvas>
   )
 }
